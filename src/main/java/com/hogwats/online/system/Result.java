@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Result {
     private boolean flag; //true: success  false: fail
-    private String code; //http status code
+    private Integer code; //http status code
     private String message; //message
     private Object data; //actual payload
 }

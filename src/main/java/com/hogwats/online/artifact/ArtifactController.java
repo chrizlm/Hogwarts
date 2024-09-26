@@ -1,6 +1,7 @@
 package com.hogwats.online.artifact;
 
 import com.hogwats.online.system.Result;
+import com.hogwats.online.system.StatusCode;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +18,7 @@ public class ArtifactController {
 
     @GetMapping("/{artifactId}")
     public Result findArtifactById(@PathVariable String artifactId){
-        return null;
+        Artifact foundArtifact = this.artifactService.findById(artifactId);
+        return new Result(true, StatusCode.SUCCESS,"Find one success",foundArtifact);
     }
 }
