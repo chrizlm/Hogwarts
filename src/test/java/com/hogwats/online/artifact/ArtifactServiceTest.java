@@ -1,5 +1,6 @@
 package com.hogwats.online.artifact;
 
+import com.hogwats.online.artifact.utils.IdWorker;
 import com.hogwats.online.wizard.Wizard;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +27,9 @@ class ArtifactServiceTest {
 
     @Mock
     ArtifactRepository artifactRepository;
+
+    @Mock
+    IdWorker idWorker;
 
     @InjectMocks
     ArtifactService artifactService;
@@ -114,6 +118,29 @@ class ArtifactServiceTest {
         //then
         assertThat(foundArtifacts.size()).isEqualTo(this.artifacts.size());
         verify(this.artifactRepository,times(1)).findAll();
+    }
+
+    @Test
+    void saveArtifactSuccess(){
+        //given
+        Artifact newArtifact = Artifact.builder()
+                .name("Artifact3")
+                .description("Description...")
+                .imageUrl("imageUrl..")
+                .build();
+
+        given(this.idWorker.nextId()).willReturn(123456L);
+        given(this.artifactRepository.save(newArtifact)).willReturn(newArtifact);
+
+        //when
+        Artifact savedArtifact = this.artifactService.save(newArtifact);
+
+        //then
+        assertThat(savedArtifact.getId()).isEqualTo("123456");
+        assertThat(savedArtifact.getName()).isEqualTo(newArtifact.getName());
+        assertThat(savedArtifact.getDescription()).isEqualTo(newArtifact.getDescription());
+        assertThat(savedArtifact.getImageUrl()).isEqualTo(newArtifact.getImageUrl());
+        verify(this.artifactRepository,times(1)).save(newArtifact);
     }
 
 

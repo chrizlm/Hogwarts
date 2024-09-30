@@ -1,10 +1,14 @@
 package com.hogwats.online.artifact;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hogwats.online.artifact.dto.ArtifactDto;
 import com.hogwats.online.system.StatusCode;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,6 +22,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @SpringBootTest
@@ -26,6 +31,9 @@ class ArtifactControllerTest {
 
     @MockBean
     ArtifactService artifactService;
+
+    @Autowired
+    ObjectMapper objectMapper;
 
     @Autowired
     MockMvc mockMvc;
@@ -101,5 +109,39 @@ class ArtifactControllerTest {
                 .andExpect(jsonPath("$.data[0].name").value("wand"))
                 .andExpect(jsonPath("$.data[1].id").value("12345"))
                 .andExpect(jsonPath("$.data[1].name").value("card"));
+    }
+
+    @Test
+    void addArtifactSuccess() throws Exception {
+        //given
+        ArtifactDto artifactDto = new ArtifactDto(
+                null,
+                "Remembral",
+                "Just a remembral",
+                "imageUrl remembral",
+                null);
+
+        String json = this.objectMapper.writeValueAsString(artifactDto);
+
+        Artifact savedArtifact = Artifact.builder()
+                .id("12345678901234567890")
+                .name("Remembral")
+                .description("Just a remembral")
+                .imageUrl("imageUrl remembral")
+                .build();
+
+        given(this.artifactService.save(Mockito.any(Artifact.class))).willReturn(savedArtifact);
+
+        //when and then
+        this.mockMvc.perform(post("/api/v1/artifacts")
+                        .contentType(MediaType.APPLICATION_JSON).content(json)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.flag").value(true))
+                .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
+                .andExpect(jsonPath("$.message").value("Add success"))
+                .andExpect(jsonPath("$.data.id").isNotEmpty())
+                .andExpect(jsonPath("$.data.name").value(savedArtifact.getName()))
+                .andExpect(jsonPath("$.data.description").value(savedArtifact.getDescription()))
+                .andExpect(jsonPath("$.data.imageUrl").value(savedArtifact.getImageUrl()));
     }
 }
