@@ -10,6 +10,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,8 +30,26 @@ class ArtifactServiceTest {
     @InjectMocks
     ArtifactService artifactService;
 
+    List<Artifact> artifacts = new ArrayList<>();
+
     @BeforeEach
     void setUp() {
+        Artifact a1 = Artifact.builder()
+                .id("12")
+                .name("Wand")
+                .description("Magic stick")
+                .imageUrl("image1")
+                .build();
+
+        Artifact a2 = Artifact.builder()
+                .id("123")
+                .name("Broom")
+                .description("Magic broom")
+                .imageUrl("image2")
+                .build();
+
+        this.artifacts.add(a1);
+        this.artifacts.add(a2);
     }
 
     @AfterEach
@@ -82,4 +102,19 @@ class ArtifactServiceTest {
                 .hasMessage("Artifact: 1234 not found");
         verify(this.artifactRepository,times(1)).findById("1234");
     }
+
+    @Test
+    void findAllSuccess(){
+        //given
+        given(this.artifactRepository.findAll()).willReturn(artifacts);
+
+        //when
+        List<Artifact> foundArtifacts = this.artifactService.findAll();
+
+        //then
+        assertThat(foundArtifacts.size()).isEqualTo(this.artifacts.size());
+        verify(this.artifactRepository,times(1)).findAll();
+    }
+
+
 }

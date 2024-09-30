@@ -1,6 +1,7 @@
 package com.hogwats.online.artifact;
 
 import com.hogwats.online.system.StatusCode;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -83,5 +84,22 @@ class ArtifactControllerTest {
                 .andExpect(jsonPath("$.message").value("Artifact: 1234 not found"))
                 .andExpect(jsonPath("$.data").isEmpty());
 
+    }
+
+    @Test
+    void findAllArtifactsSuccess() throws Exception {
+        //given
+        given(this.artifactService.findAll()).willReturn(this.artifacts);
+
+        //when and then
+        this.mockMvc.perform(get("/api/v1/artifacts").accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.flag").value(true))
+                .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
+                .andExpect(jsonPath("$.message").value("Find all success"))
+                .andExpect(jsonPath("$.data", Matchers.hasSize(this.artifacts.size())))
+                .andExpect(jsonPath("$.data[0].id").value("1234"))
+                .andExpect(jsonPath("$.data[0].name").value("wand"))
+                .andExpect(jsonPath("$.data[1].id").value("12345"))
+                .andExpect(jsonPath("$.data[1].name").value("card"));
     }
 }

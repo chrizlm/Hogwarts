@@ -22,6 +22,6 @@ public class Artifact implements Serializable {
     private String name;
     private String description;
     private String imageUrl;
-    @ManyToOne()
+    @ManyToOne
     private Wizard owner;
 }
