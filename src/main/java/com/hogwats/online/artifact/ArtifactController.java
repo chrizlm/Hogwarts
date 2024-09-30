@@ -1,13 +1,12 @@
 package com.hogwats.online.artifact;
 
+import com.hogwats.online.artifact.converter.ArtifactDtoToArtifactConverter;
 import com.hogwats.online.artifact.converter.ArtifactToArtifactDtoConverter;
 import com.hogwats.online.artifact.dto.ArtifactDto;
 import com.hogwats.online.system.Result;
 import com.hogwats.online.system.StatusCode;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,10 +17,12 @@ public class ArtifactController {
     private final ArtifactService artifactService;
 
     private final ArtifactToArtifactDtoConverter artifactToArtifactDtoConverter;
+    private final ArtifactDtoToArtifactConverter artifactDtoToArtifactConverter;
 
-    public ArtifactController(ArtifactService artifactService, ArtifactToArtifactDtoConverter artifactToArtifactDtoConverter) {
+    public ArtifactController(ArtifactService artifactService, ArtifactToArtifactDtoConverter artifactToArtifactDtoConverter, ArtifactDtoToArtifactConverter artifactDtoToArtifactConverter) {
         this.artifactService = artifactService;
         this.artifactToArtifactDtoConverter = artifactToArtifactDtoConverter;
+        this.artifactDtoToArtifactConverter = artifactDtoToArtifactConverter;
     }
 
     @GetMapping("/{artifactId}")
@@ -40,5 +41,20 @@ public class ArtifactController {
                 .collect(Collectors.toList());
 
         return new Result(true,StatusCode.SUCCESS, "Find all success", artifactDtoList);
+    }
+
+    @PostMapping
+    public Result addArtifact(@Valid @RequestBody ArtifactDto artifactDto){
+        //convert artifact DTO to artifact
+        Artifact newArtifact = this.artifactDtoToArtifactConverter.convert(artifactDto);
+        assert newArtifact != null;
+        Artifact savedArtifact = this.artifactService.save(newArtifact);
+        ArtifactDto savedArtifactDto = this.artifactToArtifactDtoConverter.convert(savedArtifact);
+        return Result.builder()
+                .flag(true)
+                .code(StatusCode.SUCCESS)
+                .message("Add success")
+                .data(savedArtifactDto)
+                .build();
     }
 }
