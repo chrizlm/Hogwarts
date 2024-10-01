@@ -32,4 +32,18 @@ public class ArtifactService {
         newArtifact.setId(idWorker.nextId() + "");
         return this.artifactRepository.save(newArtifact);
     }
+
+    public Artifact update(String artifactId, Artifact update){
+       return this.artifactRepository.findById(artifactId)
+               .map(oldArtifact -> {
+                   oldArtifact.setName(update.getName());
+                   oldArtifact.setDescription(update.getDescription());
+                   oldArtifact.setImageUrl(update.getImageUrl());
+                   return this.artifactRepository.save(oldArtifact);
+               })
+               .orElseThrow(() -> new ArtifactNotFoundException(artifactId));
+
+       //use fluent interface
+
+    }
 }

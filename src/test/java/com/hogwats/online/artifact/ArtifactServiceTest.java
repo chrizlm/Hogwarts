@@ -143,5 +143,58 @@ class ArtifactServiceTest {
         verify(this.artifactRepository,times(1)).save(newArtifact);
     }
 
+    @Test
+    void updateArtifactSuccess(){
+        //given
+        Artifact oldArtifact = Artifact.builder()
+                .id("123")
+                .name("Artifact3")
+                .description("Description3")
+                .imageUrl("imageUrl")
+                .build();
+
+        Artifact update = Artifact.builder()
+                .id("123")
+                .name("Artifact3")
+                .description("New Description3")
+                .imageUrl("imageUrl")
+                .build();
+
+        given(this.artifactRepository.findById("123")).willReturn(Optional.of(oldArtifact));
+        given(this.artifactRepository.save(oldArtifact)).willReturn(oldArtifact);//old artifact has updated values
+
+        //when
+        Artifact updatedArtifact = this.artifactService.update("123",update);
+
+        //then
+        assertThat(updatedArtifact.getId()).isEqualTo(update.getId());
+        assertThat(updatedArtifact.getDescription()).isEqualTo(update.getDescription());
+        verify(this.artifactRepository,times(1)).findById("123");
+        verify(this.artifactRepository,times(1)).save(oldArtifact);
+    }
+
+    @Test
+    void updateArtifactNotFound(){
+        //given
+        Artifact update = Artifact.builder()
+                .id("123")
+                .name("Artifact3")
+                .description("New Description3")
+                .imageUrl("imageUrl")
+                .build();
+
+        given(this.artifactRepository.findById("123")).willReturn(Optional.empty());
+
+        //when
+        assertThrows(ArtifactNotFoundException.class,
+                ()->{
+            this.artifactService.update("123",update);
+                });
+
+        //then
+        verify(this.artifactRepository,times(1)).findById("123");
+
+    }
+
 
 }
