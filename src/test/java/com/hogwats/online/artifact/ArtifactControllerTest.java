@@ -20,9 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @SpringBootTest
@@ -143,5 +143,65 @@ class ArtifactControllerTest {
                 .andExpect(jsonPath("$.data.name").value(savedArtifact.getName()))
                 .andExpect(jsonPath("$.data.description").value(savedArtifact.getDescription()))
                 .andExpect(jsonPath("$.data.imageUrl").value(savedArtifact.getImageUrl()));
+    }
+
+    @Test
+    void updateArtifactSuccess() throws Exception {
+        //given
+        ArtifactDto newArtifactDto = new ArtifactDto(
+                "123",
+                "update",
+                "update artifact",
+                "update imageUrl",
+                null
+        );
+
+        String json = this.objectMapper.writeValueAsString(newArtifactDto);
+
+        Artifact updatedArtifact = Artifact.builder()
+                .id("123")
+                .name("update")
+                .description("update artifact")
+                .imageUrl("update imageUrl")
+                .build();
+
+        given(this.artifactService.update(eq("123"),Mockito.any(Artifact.class))).willReturn(updatedArtifact);
+
+        //when and then
+        this.mockMvc.perform(put("/api/v1/artifacts/123")
+                        .contentType(MediaType.APPLICATION_JSON).content(json)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.flag").value(true))
+                .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
+                .andExpect(jsonPath("$.message").value("update success"))
+                .andExpect(jsonPath("$.data.id").isNotEmpty())
+                .andExpect(jsonPath("$.data.name").value(updatedArtifact.getName()))
+                .andExpect(jsonPath("$.data.description").value(updatedArtifact.getDescription()))
+                .andExpect(jsonPath("$.data.imageUrl").value(updatedArtifact.getImageUrl()));
+    }
+
+    @Test
+    void updateArtifactErrorWithNonExistentId() throws Exception {
+       //given
+        ArtifactDto artifactDto = new ArtifactDto(
+                "123",
+                "update",
+                "update description",
+                "update url",
+                null
+        );
+
+        String json = this.objectMapper.writeValueAsString(artifactDto);
+
+        given(this.artifactService.update(eq("123"),Mockito.any(Artifact.class))).willThrow(new ArtifactNotFoundException("123"));
+
+       //when and then
+        this.mockMvc.perform(put("/api/v1/artifacts/123")
+                        .contentType(MediaType.APPLICATION_JSON).content(json)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.flag").value(false))
+                .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
+                .andExpect(jsonPath("$.message").value("Artifact: 123 not found"))
+                .andExpect(jsonPath("$.data").isEmpty());
     }
 }
