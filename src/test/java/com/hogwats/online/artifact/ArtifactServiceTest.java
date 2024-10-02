@@ -19,8 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ArtifactServiceTest {
@@ -194,6 +193,42 @@ class ArtifactServiceTest {
         //then
         verify(this.artifactRepository,times(1)).findById("123");
 
+    }
+
+    @Test
+    void deleteArtifactSuccess(){
+        //given
+        Artifact artifact = Artifact.builder()
+                .id("123")
+                .name("Artifact3")
+                .description("delete Description3")
+                .imageUrl("imageUrl")
+                .build();
+
+        given(this.artifactRepository.findById("123")).willReturn(Optional.of(artifact));
+        doNothing().when(this.artifactRepository).deleteById("123");
+
+        //when
+        this.artifactService.delete("123");
+
+        //then
+        verify(this.artifactRepository,times(1)).deleteById("123");
+    }
+
+    @Test
+    void deleteArtifactNotFound(){
+        //given
+        given(this.artifactRepository.findById("123")).willReturn(Optional.empty());
+
+        //when
+        assertThrows(ArtifactNotFoundException.class,
+                ()->{
+                    this.artifactService.delete("123");
+                });
+
+        //then
+        verify(this.artifactRepository,times(1)).findById("123");
+        verify(this.artifactRepository,times(0)).deleteById("123");
     }
 
 

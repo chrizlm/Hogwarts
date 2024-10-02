@@ -22,6 +22,8 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -199,6 +201,33 @@ class ArtifactControllerTest {
         this.mockMvc.perform(put("/api/v1/artifacts/123")
                         .contentType(MediaType.APPLICATION_JSON).content(json)
                         .accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.flag").value(false))
+                .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
+                .andExpect(jsonPath("$.message").value("Artifact: 123 not found"))
+                .andExpect(jsonPath("$.data").isEmpty());
+    }
+
+    @Test
+    void deleteArtifactSuccess() throws Exception {
+        //given
+        doNothing().when(this.artifactService).delete("123");
+
+        //when and then
+        this.mockMvc.perform(delete("/api/v1/artifacts/123").accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.flag").value(true))
+                .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
+                .andExpect(jsonPath("$.message").value("delete success"))
+                .andExpect(jsonPath("$.data").isEmpty());
+    }
+
+    @Test
+    void deleteArtifactNotFound() throws Exception {
+        //given
+        doThrow(new ArtifactNotFoundException("123"))
+                .when(this.artifactService).delete("123");
+
+        //when and then
+        this.mockMvc.perform(delete("/api/v1/artifacts/123").accept(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.flag").value(false))
                 .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
                 .andExpect(jsonPath("$.message").value("Artifact: 123 not found"))
