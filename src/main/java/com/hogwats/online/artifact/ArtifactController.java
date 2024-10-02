@@ -70,4 +70,14 @@ public class ArtifactController {
                 .data(updatedArtifactDto)
                 .build();
     }
+
+    @DeleteMapping("/{artifactId}")
+    public Result deleteArtifact(@PathVariable String artifactId){
+        this.artifactService.delete(artifactId);
+        return Result.builder()
+                .flag(true)
+                .code(StatusCode.SUCCESS)
+                .message("delete success")
+                .build();
+    }
 }

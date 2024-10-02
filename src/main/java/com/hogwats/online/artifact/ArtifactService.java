@@ -44,6 +44,11 @@ public class ArtifactService {
                .orElseThrow(() -> new ArtifactNotFoundException(artifactId));
 
        //use fluent interface
+    }
 
+    public void delete (String artifactId){
+        this.artifactRepository.findById(artifactId)
+                .orElseThrow(()-> new ArtifactNotFoundException(artifactId));
+        this.artifactRepository.deleteById(artifactId);
     }
 }
