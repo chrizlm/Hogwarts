@@ -1,6 +1,9 @@
 package com.hogwats.online.wizard.dto;
 
-public record WizardDto(Integer id,
+import jakarta.validation.constraints.NotNull;
+
+public record WizardDto(Long id,
+                        @NotNull
                         String name,
                         Integer numberOfArtifacts) {
 }

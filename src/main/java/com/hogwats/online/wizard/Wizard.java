@@ -21,7 +21,7 @@ import java.util.List;
 @Entity
 public class Wizard implements Serializable {
     @Id
-    private Integer id;
+    private Long id;
     private String name;
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "owner")
     @Builder.Default

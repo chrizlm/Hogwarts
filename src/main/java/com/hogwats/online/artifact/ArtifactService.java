@@ -2,6 +2,7 @@ package com.hogwats.online.artifact;
 
 import com.hogwats.online.artifact.dto.ArtifactDto;
 import com.hogwats.online.artifact.utils.IdWorker;
+import com.hogwats.online.system.exception.ObjectNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +22,7 @@ public class ArtifactService {
 
     public Artifact findById(String artifactId){
         return this.artifactRepository.findById(artifactId)
-                .orElseThrow(()-> new ArtifactNotFoundException(artifactId));
+                .orElseThrow(()-> new ObjectNotFoundException("Artifact",artifactId));
     }
 
     public List<Artifact> findAll(){
@@ -41,14 +42,14 @@ public class ArtifactService {
                    oldArtifact.setImageUrl(update.getImageUrl());
                    return this.artifactRepository.save(oldArtifact);
                })
-               .orElseThrow(() -> new ArtifactNotFoundException(artifactId));
+               .orElseThrow(() -> new ObjectNotFoundException("Artifact",artifactId));
 
        //use fluent interface
     }
 
     public void delete (String artifactId){
         this.artifactRepository.findById(artifactId)
-                .orElseThrow(()-> new ArtifactNotFoundException(artifactId));
+                .orElseThrow(()-> new ObjectNotFoundException("Artifact",artifactId));
         this.artifactRepository.deleteById(artifactId);
     }
 }

@@ -1,6 +1,7 @@
 package com.hogwats.online.artifact;
 
 import com.hogwats.online.artifact.utils.IdWorker;
+import com.hogwats.online.system.exception.ObjectNotFoundException;
 import com.hogwats.online.wizard.Wizard;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -63,7 +64,7 @@ class ArtifactServiceTest {
     void findByIdSuccess() {
         //Given
         Wizard wizard = Wizard.builder()
-                .id(1)
+                .id(1L)
                 .name("Harry")
                 .build();
 
@@ -101,7 +102,7 @@ class ArtifactServiceTest {
 
         //then
         assertThat(thrown)
-                .isInstanceOf(ArtifactNotFoundException.class)
+                .isInstanceOf(ObjectNotFoundException.class)
                 .hasMessage("Artifact: 1234 not found");
         verify(this.artifactRepository,times(1)).findById("1234");
     }
@@ -185,7 +186,7 @@ class ArtifactServiceTest {
         given(this.artifactRepository.findById("123")).willReturn(Optional.empty());
 
         //when
-        assertThrows(ArtifactNotFoundException.class,
+        assertThrows(ObjectNotFoundException.class,
                 ()->{
             this.artifactService.update("123",update);
                 });
@@ -221,7 +222,7 @@ class ArtifactServiceTest {
         given(this.artifactRepository.findById("123")).willReturn(Optional.empty());
 
         //when
-        assertThrows(ArtifactNotFoundException.class,
+        assertThrows(ObjectNotFoundException.class,
                 ()->{
                     this.artifactService.delete("123");
                 });

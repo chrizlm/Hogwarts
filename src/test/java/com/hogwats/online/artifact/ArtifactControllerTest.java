@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hogwats.online.artifact.dto.ArtifactDto;
 import com.hogwats.online.system.StatusCode;
+import com.hogwats.online.system.exception.ObjectNotFoundException;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,7 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+//import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
@@ -85,7 +86,7 @@ class ArtifactControllerTest {
     @Test
     void findArtifactByIdNotFound() throws Exception {
         //given
-        given(this.artifactService.findById("1234")).willThrow(new ArtifactNotFoundException("1234"));
+        given(this.artifactService.findById("1234")).willThrow(new ObjectNotFoundException("Artifact","1234"));
 
         //when and then
         this.mockMvc.perform(get("/api/v1/artifacts/1234").accept(MediaType.APPLICATION_JSON))
@@ -195,7 +196,7 @@ class ArtifactControllerTest {
 
         String json = this.objectMapper.writeValueAsString(artifactDto);
 
-        given(this.artifactService.update(eq("123"),Mockito.any(Artifact.class))).willThrow(new ArtifactNotFoundException("123"));
+        given(this.artifactService.update(eq("123"),Mockito.any(Artifact.class))).willThrow(new ObjectNotFoundException("Artifact","123"));
 
        //when and then
         this.mockMvc.perform(put("/api/v1/artifacts/123")
@@ -223,7 +224,7 @@ class ArtifactControllerTest {
     @Test
     void deleteArtifactNotFound() throws Exception {
         //given
-        doThrow(new ArtifactNotFoundException("123"))
+        doThrow(new ObjectNotFoundException("Artifact","123"))
                 .when(this.artifactService).delete("123");
 
         //when and then
