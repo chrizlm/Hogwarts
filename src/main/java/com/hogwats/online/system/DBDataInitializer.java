@@ -43,14 +43,14 @@ public class DBDataInitializer implements CommandLineRunner {
                 .build();
 
         Wizard w1 = Wizard.builder()
-                .id(1)
+                .id(1L)
                 .name("Harry")
                 .build();
 
         w1.addArtifact(a1);
 
         Wizard w2 = Wizard.builder()
-                .id(2)
+                .id(2L)
                 .name("Tom")
                 .build();
 
