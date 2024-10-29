@@ -1,5 +1,7 @@
 package com.hogwats.online.wizard;
 
+import com.hogwats.online.artifact.Artifact;
+import com.hogwats.online.artifact.ArtifactRepository;
 import com.hogwats.online.artifact.utils.IdWorker;
 import com.hogwats.online.system.exception.ObjectNotFoundException;
 import jakarta.transaction.Transactional;
@@ -13,6 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WizardService {
     private final WizardRepository wizardRepository;
+    private final ArtifactRepository artifactRepository;
     private final IdWorker idWorker;
 
     public Wizard createWizard(Wizard newWizard){
@@ -33,5 +36,25 @@ public class WizardService {
         this.wizardRepository.findById(wizardId)
                 .orElseThrow(()-> new ObjectNotFoundException("Wizard",wizardId));
         this.wizardRepository.deleteById(wizardId);
+    }
+
+    public void assignArtifact(Long wizardId, String artifactId){
+        //find artifact by Id
+        Artifact foundArtifact =this.artifactRepository.findById(artifactId).orElseThrow(
+                () -> new ObjectNotFoundException("Artifact", artifactId)
+        );
+
+        //find wizard by Id
+        Wizard newOwner = this.wizardRepository.findById(wizardId).orElseThrow(
+                () -> new ObjectNotFoundException("Wizard", wizardId)
+        );
+
+        //artifact assignment
+        //is artifact owned?
+        if(foundArtifact.getOwner() != null){
+            foundArtifact.getOwner().removeArtifact(foundArtifact);
+        }
+        //assignment
+        newOwner.addArtifact(foundArtifact);
     }
 }

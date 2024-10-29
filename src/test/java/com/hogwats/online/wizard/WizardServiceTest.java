@@ -1,5 +1,7 @@
 package com.hogwats.online.wizard;
 
+import com.hogwats.online.artifact.Artifact;
+import com.hogwats.online.artifact.ArtifactRepository;
 import com.hogwats.online.artifact.utils.IdWorker;
 import com.hogwats.online.system.exception.ObjectNotFoundException;
 import org.junit.jupiter.api.AfterEach;
@@ -25,6 +27,9 @@ import static org.mockito.Mockito.*;
 class WizardServiceTest {
     @Mock
     WizardRepository wizardRepository;
+
+    @Mock
+    ArtifactRepository artifactRepository;
 
     @Mock
     IdWorker idWorker;
@@ -163,5 +168,86 @@ class WizardServiceTest {
         //then
         verify(this.wizardRepository,times(1)).findById(1234L);
         verify(this.wizardRepository,times(0)).deleteById(1234L);
+    }
+
+    @Test
+    void assignArtifactSuccess(){
+        //given
+        Artifact art1 = Artifact.builder()
+                .id("1234")
+                .name("Wand")
+                .description("Magic stick")
+                .imageUrl("image1")
+                .build();
+
+        Wizard wiz1 = Wizard.builder()
+                .id(1235L)
+                .name("Test 1")
+                .build();
+
+        Wizard wiz2 = Wizard.builder()
+                .id(1237L)
+                .name("Test 2")
+                .build();
+
+        wiz1.addArtifact(art1);
+
+        given(this.artifactRepository.findById(art1.getId())).willReturn(Optional.of(art1));
+        given(this.wizardRepository.findById(wiz2.getId())).willReturn(Optional.of(wiz2));
+
+        //when
+        this.wizardService.assignArtifact(wiz2.getId(), art1.getId());
+
+        //then
+        assertThat(art1.getOwner().getId()).isEqualTo(wiz2.getId());
+        assertThat(wiz2.getArtifacts()).contains(art1);
+    }
+
+    @Test
+    void assignArtifactErrorWithNonExistentWizardId(){
+        //given
+        Artifact art1 = Artifact.builder()
+                .id("1234")
+                .name("Wand")
+                .description("Magic stick")
+                .imageUrl("image1")
+                .build();
+
+        Wizard wiz1 = Wizard.builder()
+                .id(1235L)
+                .name("Test 1")
+                .build();
+        wiz1.addArtifact(art1);
+
+        given(this.artifactRepository.findById(art1.getId())).willReturn(Optional.of(art1));
+        given(this.wizardRepository.findById(Mockito.anyLong())).willReturn(Optional.empty());
+
+        //when
+        Throwable thrown = assertThrows(ObjectNotFoundException.class,
+                ()->{
+            this.wizardService.assignArtifact(143L,art1.getId());
+                });
+
+        //then
+        assertThat(thrown).isInstanceOf(ObjectNotFoundException.class)
+                .hasMessage("Wizard: " + 143L + " not found");
+        assertThat(art1.getOwner().getId()).isEqualTo(wiz1.getId());
+
+    }
+
+    @Test
+    void assignArtifactErrorWithNonExistentArtifactId(){
+        //given
+        given(this.artifactRepository.findById("1234")).willReturn(Optional.empty());
+
+        //when
+        Throwable thrown = assertThrows(ObjectNotFoundException.class,
+                ()->{
+            this.wizardService.assignArtifact(143L,"1234");
+                });
+
+        //then
+        assertThat(thrown).isInstanceOf(ObjectNotFoundException.class)
+                .hasMessage("Artifact: 1234 not found");
     }
 }
