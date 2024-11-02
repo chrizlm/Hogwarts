@@ -2,21 +2,22 @@ package com.hogwats.online.system;
 
 import com.hogwats.online.artifact.Artifact;
 import com.hogwats.online.artifact.ArtifactRepository;
+import com.hogwats.online.hogwartsUser.HogwartsUser;
+import com.hogwats.online.hogwartsUser.UserRepository;
 import com.hogwats.online.wizard.Wizard;
 import com.hogwats.online.wizard.WizardRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class DBDataInitializer implements CommandLineRunner {
 
     private final ArtifactRepository artifactRepository;
     private final WizardRepository wizardRepository;
+    private final UserRepository userRepository;
 
-    public DBDataInitializer(ArtifactRepository artifactRepository, WizardRepository wizardRepository) {
-        this.artifactRepository = artifactRepository;
-        this.wizardRepository = wizardRepository;
-    }
 
     @Override
     public void run(String... args) throws Exception {
@@ -56,10 +57,28 @@ public class DBDataInitializer implements CommandLineRunner {
 
         w2.addArtifact(a2);
 
-        wizardRepository.save(w1);
-        wizardRepository.save(w2);
+        this.wizardRepository.save(w1);
+        this.wizardRepository.save(w2);
 
-        artifactRepository.save(a3);
+        this.artifactRepository.save(a3);
+
+
+        HogwartsUser usr1 = HogwartsUser.builder()
+                .id(123L)
+                .username("user1")
+                .enabled(true)
+                .roles("admin")
+                .password("123").build();
+
+        HogwartsUser usr2 = HogwartsUser.builder()
+                .id(1234L)
+                .username("user2")
+                .enabled(false)
+                .roles("user")
+                .password("1234").build();
+
+        this.userRepository.save(usr1);
+        this.userRepository.save(usr2);
 
     }
 }
