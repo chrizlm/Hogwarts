@@ -4,6 +4,7 @@ import com.hogwats.online.artifact.Artifact;
 import com.hogwats.online.artifact.ArtifactRepository;
 import com.hogwats.online.hogwartsUser.HogwartsUser;
 import com.hogwats.online.hogwartsUser.UserRepository;
+import com.hogwats.online.hogwartsUser.UserService;
 import com.hogwats.online.wizard.Wizard;
 import com.hogwats.online.wizard.WizardRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ public class DBDataInitializer implements CommandLineRunner {
 
     private final ArtifactRepository artifactRepository;
     private final WizardRepository wizardRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
 
     @Override
@@ -77,8 +78,17 @@ public class DBDataInitializer implements CommandLineRunner {
                 .roles("user")
                 .password("1234").build();
 
-        this.userRepository.save(usr1);
-        this.userRepository.save(usr2);
+        HogwartsUser usr3 = HogwartsUser.builder()
+                .id(1234L)
+                .username("user3")
+                .enabled(true)
+                .roles("user")
+                .password("12345").build();
+
+
+        this.userService.addUser(usr1);
+        this.userService.addUser(usr2);
+        this.userService.addUser(usr3);
 
     }
 }

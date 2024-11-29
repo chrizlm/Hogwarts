@@ -3,12 +3,18 @@ package com.hogwats.online.system.exception;
 import com.hogwats.online.system.Result;
 import com.hogwats.online.system.StatusCode;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AccountStatusException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
 
 import java.util.HashMap;
 import java.util.List;
@@ -37,5 +43,31 @@ public class ExceptionHandlerAdvice {
                 .message("Provided arguments are invalid, see data for details.")
                 .data(map)
                 .build();
+    }
+
+    @ExceptionHandler({UsernameNotFoundException.class, BadCredentialsException.class})
+    Result handleAuthenticationException(Exception ex){
+        return new Result(false, StatusCode.UNAUTHORIZED, "Username or password is incorrect", ex.getMessage());
+    }
+
+    @ExceptionHandler(AccountStatusException.class)
+    Result handleAccountStatusException(AccountStatusException ex){
+        return new Result(false, StatusCode.UNAUTHORIZED, "Username account is abnormal", ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidBearerTokenException.class)
+    Result handleInvalidBearerTokenException(InvalidBearerTokenException ex){
+        return new Result(false, StatusCode.UNAUTHORIZED, "The access token provided is expired, revoked, malformed or invalid for other reasons", ex.getMessage());
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    Result handleAccessDeniedException(Exception ex){
+        return new Result(false, StatusCode.FORBIDDEN, "No permission", ex.getMessage());
+    }
+
+    //fallback exception
+    @ExceptionHandler(Exception.class)
+    Result handleOtherException(Exception ex){
+        return new Result(false, StatusCode.INTERNAL_SERVER_ERROR, "A server internal error occurred", ex.getMessage());
     }
 }
