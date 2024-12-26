@@ -1,0 +1,8 @@
+spring:
+  datasource:
+    url: #${datasource-url} #URL of mysql (or cockroachlab)
+    username: #${datasource-username} #Admin username of mysql
+    password: #${datasource-password} #Password of admin user of mysql
+  jpa:
+    hibernate:
+      ddl-auto: none # Turn off ddl auto generation

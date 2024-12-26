@@ -9,10 +9,12 @@ import com.hogwats.online.wizard.Wizard;
 import com.hogwats.online.wizard.WizardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
+@Profile("dev")
 public class DBDataInitializer implements CommandLineRunner {
 
     private final ArtifactRepository artifactRepository;
