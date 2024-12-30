@@ -3,6 +3,7 @@ package com.hogwats.online.artifact;
 import com.hogwats.online.artifact.dto.ArtifactDto;
 import com.hogwats.online.artifact.utils.IdWorker;
 import com.hogwats.online.system.exception.ObjectNotFoundException;
+import io.micrometer.core.annotation.Timed;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +26,7 @@ public class ArtifactService {
                 .orElseThrow(()-> new ObjectNotFoundException("Artifact",artifactId));
     }
 
+    @Timed("findAllArtifactsService.time")
     public List<Artifact> findAll(){
         return this.artifactRepository.findAll();
     }
