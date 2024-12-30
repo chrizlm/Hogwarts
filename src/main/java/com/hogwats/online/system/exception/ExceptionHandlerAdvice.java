@@ -15,6 +15,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 
 import java.util.HashMap;
@@ -75,5 +76,11 @@ public class ExceptionHandlerAdvice {
     @ExceptionHandler(Exception.class)
     Result handleOtherException(Exception ex){
         return new Result(false, StatusCode.INTERNAL_SERVER_ERROR, "A server internal error occurred", ex.getMessage());
+    }
+
+    @ExceptionHandler(NoHandlerFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    Result handleAccessDeniedException(NoHandlerFoundException ex) {
+        return new Result(false, StatusCode.NOT_FOUND, "This API endpoint is not found.", ex.getMessage());
     }
 }
